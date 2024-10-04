@@ -32,7 +32,7 @@ How to release:
   $ git status -sb .    	# list files in staging area
   $ git commit -m "Preparation for release #{ver}"
   $ rake package        	# create a gem package
-  $ rake release        	# upload to rubygems.org
+  $ rake release[#{ver}]	# upload to rubygems.org
   $ git push -u origin
   $ git tag | fgrep #{ver}	# confirm release tag
   $ git push --tags
