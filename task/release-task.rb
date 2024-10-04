@@ -22,11 +22,11 @@ desc "upload gem to rubygems.org"
 task :release, [:version] => :package do |t, args|
   version = version_number_required(args, :release)
   spec = load_gemspec_file(SPECFILE)
-  version == spec.version  or
+  version == spec.version.to_s  or
     raise "Version in gemspec file (#{spec.version}) is different from #{version}"
   gemfile = "#{PROJECT}-#{version}.gem"
   print "*** Are you sure to upload #{gemfile}? [y/N]: "
-  answer = gets().strip()
+  answer = $stdin.gets().strip()
   if answer =~ /\A[yY]/
     sh "git tag v#{version}"
     #sh "git tag rel-#{version}"
