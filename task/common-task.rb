@@ -13,18 +13,32 @@ end
 desc "show how to release"
 task :howto, [:version] do |t, args|
   ver = args[:version] || ENV['version'] || "0.0.0"
+  zero_p = ver.end_with?('.0')
+  opt_b = zero_p ? " -b" : ""
   puts <<"END"
 How to release:
 
-  $ git diff                     # confirm that no diff
+  $ git diff            	# confirm that there is no changes
   $ rake test
-  $ rake test:all                # test on Ruby 2.x ~ 3.x
-  $ rake prepare[#{ver}]          # update release number
-  $ rake package                 # create gem file
-  $ rake release                 # upload to rubygems.org
-  $ git checkout .               # reset release number
-  $ git tag | grep #{ver}         # confirm release tag
+  $ rake test:all       	# test on Ruby 2.x ~ 3.x
+  $ git checkout#{opt_b} rel-#{ver[0..-3]}	# create or switch to release branch
+  $ vi CHANGES.md       	# if necessary
+  $ git add CHANGES.md       	# if necessary
+  $ git commit -m "Update 'CHANGES.md'"	# if necessary
+  $ git log -1          	# if necessary
+  $ cid=$(git log -1 | awk 'NR==1{print $2}')	# if necessary
+  $ rake prepare[#{ver}] 	# update release number
+  $ git add -u .        	# add changes
+  $ git status -sb .    	# list files in staging area
+  $ git commit -m "Preparation for release #{ver}"
+  $ rake package        	# create a gem package
+  $ rake release        	# upload to rubygems.org
+  $ git push -u origin
+  $ git tag | fgrep #{ver}	# confirm release tag
   $ git push --tags
+  $ git checkout -      	# back to main branch
+  $ git log -1 $cid     	# if necessary
+  $ git cherry-pick $cid	# if necessary
 
 END
 end
