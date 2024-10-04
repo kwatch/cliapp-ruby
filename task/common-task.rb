@@ -13,7 +13,7 @@ end
 desc "show how to release"
 task :howto, [:version] do |t, args|
   ver = args[:version] || ENV['version'] || "0.0.0"
-  puts <<'END'
+  puts <<"END"
 How to release:
 
   $ git diff                     # confirm that no diff

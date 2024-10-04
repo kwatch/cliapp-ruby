@@ -4,6 +4,7 @@
 desc "update version number"
 task :prepare, [:version] do |t, args|
   version = version_number_required(args, :prepare)
+  spec = load_gemspec_file(SPECFILE)
   edit(spec.files) {|s|
     s.gsub(/\$Version\:.*?\$/,   "$Version\: #{version} $") \
      .gsub(/\$Version\$/,        version)
@@ -59,7 +60,7 @@ def load_gemspec_file(gemspec_file)
   return Gem::Specification::load(gemspec_file)
 end
 
-def version_number_required(arg, task_name)
+def version_number_required(args, task_name)
   version = args[:version] || ENV['version']
   unless version
     $stderr.puts <<"END"
