@@ -18,7 +18,7 @@ END
                            test/**/*.rb
                            task/**/*.rb
                          ]]
-  spec.executables     = ['hello']
+  spec.executables     = []
   spec.bindir          = 'bin'
   spec.require_path    = 'lib'
   spec.test_files      = Dir['test/**/*_test.rb']
