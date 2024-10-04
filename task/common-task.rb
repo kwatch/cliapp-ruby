@@ -33,7 +33,7 @@ How to release:
   $ git commit -m "Preparation for release #{ver}"
   $ rake package        	# create a gem package
   $ rake release[#{ver}]	# upload to rubygems.org
-  $ git push -u origin
+  $ git push -u origin rel-#{ver[0..-3]}
   $ git tag | fgrep #{ver}	# confirm release tag
   $ git push --tags
   $ git checkout -      	# back to main branch
