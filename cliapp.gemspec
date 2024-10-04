@@ -21,7 +21,7 @@ END
   spec.executables     = []
   spec.bindir          = 'bin'
   spec.require_path    = 'lib'
-  spec.test_files      = Dir['test/**/*_test.rb']
+  spec.test_files      = ['test/all.rb']   # or: Dir['test/**/*_test.rb']
   #spec.extra_rdoc_files = ['README.md', 'CHANGES.md']
 
   spec.required_ruby_version = ">= 2.4"
