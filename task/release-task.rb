@@ -51,11 +51,17 @@ task :prepare, [:version] do |t, args|
   version = version_number_required(args, :prepare)
   copyright = COPYRIGHT
   spec = load_gemspec_file("#{PROJECT}.gemspec")
-  edit(spec.files) {|s|
+  edit(spec.files) {|s, fpath|
     s = s.gsub(/\$Version\:.*?\$/,   "$Version\: #{version} $")
     s = s.gsub(/\$Version\$/,        version)
     s = s.gsub(/\$Copyright:.*?\$/,  "$Copyright\: #{copyright} $")
     s = s.gsub(/\$Copyright\$/,      copyright)
+    if fpath == "MIT-LICENSE"
+      if copyright =~ /(\(c\).*)/
+        x = $1
+        s = s.sub(/^Copyright .*$/, "Copyright #{x}")
+      end
+    end
     s
   }
 end
@@ -92,7 +98,7 @@ def edit(*filepaths)
     next if ! File.file?(fpath)
     File.open(fpath, 'r+b:utf-8') do |f|
       s = f.read()
-      new_s = yield s
+      new_s = yield s, fpath
       if new_s != s
         f.rewind()
         f.truncate(0)
