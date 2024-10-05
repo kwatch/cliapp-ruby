@@ -128,6 +128,22 @@ module CLIApp
       nil
     end
 
+    def main(argv=ARGV, &error_handler)
+      #; [!hopc3] returns 0 if finished successfully.
+      run(*argv)
+      return 0
+    rescue OptionParser::ParseError, CLIApp::ActionError => exc
+      #; [!uwcq7] yields block with error object if error raised.
+      if block_given?()
+        yield exc
+      #; [!e0t6k] reports error into stderr if block not given.
+      else
+        $stderr.puts "[ERROR] #{exc.message}"
+      end
+      #; [!d0g0w] returns 1 if error raised.
+      return 1
+    end
+
     def run(*args)
       #; [!qv5fz] parses global options (not parses action options).
       global_opts = parse_global_options(args)
@@ -415,10 +431,13 @@ GARBAGE_FILES = []
 PRODUCT_FILES = []
 
 ## main
-begin
-  app.run(*ARGV)
-  exit 0
-rescue OptionParser::ParseError, CLIApp::ActionError => exc
-  $stderr.puts "[ERROR] #{exc.message}"
-  exit 1
-end
+status_code = app.main(ARGV)
+exit status_code
+## or
+#begin
+#  app.run(*ARGV)
+#  exit 0
+#rescue OptionParser::ParseError, CLIApp::ActionError => exc
+#  $stderr.puts "[ERROR] #{exc.message}"
+#  exit 1
+#end

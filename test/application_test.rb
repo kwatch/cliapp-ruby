@@ -146,6 +146,50 @@ END
     end
 
 
+    topic '#main()' do
+
+      spec "[!hopc3] returns 0 if finished successfully." do
+        |app|
+        ret = nil
+        capture_stdout do
+          ret = app.main(["hello"])
+        end
+        ok {ret} == 0
+      end
+
+      spec "[!uwcq7] yields block with error object if error raised." do
+        |app|
+        exc = nil
+        app.main(["helloxx"]) do |exc_|
+          exc = exc_
+        end
+        ok {exc}.is_a?(CLIApp::ActionNotFoundError)
+        ok {exc.message} == "helloxx: Action not found."
+      end
+
+      spec "[!e0t6k] reports error into stderr if block not given." do
+        |app|
+        serr = capture_stderr do
+          app.main(["helloxx"])
+        end
+        ok {serr} == "[ERROR] helloxx: Action not found.\n"
+      end
+
+      spec "[!d0g0w] returns 1 if error raised." do
+        |app|
+        ret = app.main(["helloxx"]) do end
+        ok {ret} == 1
+        #
+        ret = nil
+        capture_stderr do
+          ret = app.main(["helloxx"])
+        end
+        ok {ret} == 1
+      end
+
+    end
+
+
     topic '#run()' do
 
       spec "[!qv5fz] parses global options (not parses action options)." do
