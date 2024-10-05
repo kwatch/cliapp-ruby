@@ -65,7 +65,7 @@ module CLIApp
       @help_option_width  = help_option_width  || 22
       @help_action_width  = help_action_width  || 22
       @actionlist_width   = actionlist_width   || 16
-      @actionlist_format  = actionlist_format  || nil # ex: "%-#{@actionlist_width}s : %s"
+      @actionlist_format  = actionlist_format  || nil # ex: "%-16s : %s"
     end
 
     attr_accessor :name, :desc, :command, :version
