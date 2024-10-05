@@ -378,6 +378,19 @@ END
       return name
     end
 
+
+    module Color
+      module_function
+      def strong(s) ; return "\e[1m#{s}\e[0m"  ; end
+      def weak(s)   ; return "\e[2m#{s}\e[0m"  ; end
+      def header(s) ; return "\e[36m#{s}\e[0m" ; end
+      def error(s)  ; return "\e[31m#{s}\e[0m" ; end
+      def decolorize(s)
+        return s.gsub(/\e\[.*?m/, '')
+      end
+    end
+
+
   end
 
 
