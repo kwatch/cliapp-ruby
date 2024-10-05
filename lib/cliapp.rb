@@ -138,7 +138,9 @@ module CLIApp
         yield exc
       #; [!e0t6k] reports error into stderr if block not given.
       else
-        $stderr.puts "[ERROR] #{exc.message}"
+        s = "[ERROR]"
+        s = Util::Color.error(s) if $stderr.tty?
+        $stderr.puts "#{s} #{exc.message}"
       end
       #; [!d0g0w] returns 1 if error raised.
       return 1
