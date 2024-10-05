@@ -138,7 +138,9 @@ module CLIApp
         yield exc
       #; [!e0t6k] reports error into stderr if block not given.
       else
-        $stderr.puts "[ERROR] #{exc.message}"
+        s = "[ERROR]"
+        s = Util::Color.error(s) if $stderr.tty?
+        $stderr.puts "#{s} #{exc.message}"
       end
       #; [!d0g0w] returns 1 if error raised.
       return 1
@@ -163,7 +165,8 @@ module CLIApp
       action_opts = parse_action_options(action, args)
       #; [!ehshp] prints action help if action option contains help option.
       if action_opts[:help]
-        print action_help_message(action)
+        #; [!6vet4] decolorizes action help message when stdout is not a tty.
+        print decolorize(action_help_message(action))
         return
       end
       #; [!0nwwe] invokes an action with action args and options.
@@ -173,7 +176,8 @@ module CLIApp
     def handle_global_options(global_opts)
       #; [!6n0w0] when '-h' or '--help' specified, prints help message and returns true.
       if global_opts[:help]
-        print application_help_message()
+        #; [!fadq1] decolorizes app help message when stdout is not a tty.
+        print decolorize(application_help_message())
         return true
       end
       #; [!zii8c] when '-V' or '--version' specified, prints version number and returns true.
@@ -209,22 +213,23 @@ module CLIApp
       }.join()
       optstr = options_str.empty? ? "" : " [<options>]"
       actstr = actions_str.empty? ? "" : " <action> [<arguments>...]"
-      ver = c.version ? " (#{c.version})" : nil
+      cl = Util::Color
+      ver = c.version ? " " + cl.weak("(#{c.version})") : nil
       sb = []
       sb << <<"END"
-#{c.name}#{ver} --- #{c.desc}
+#{cl.strong(c.name)}#{ver} --- #{c.desc}
 
-Usage:
-#{indent}$ #{c.command}#{optstr}#{actstr}
+#{cl.header('Usage:')}
+#{indent}$ #{cl.strong(c.command)}#{optstr}#{actstr}
 END
       sb << (options_str.empty? ? "" : <<"END")
 
-Options:
+#{cl.header('Options:')}
 #{options_str.chomp()}
 END
       sb << (actions_str.empty? ? "" : <<"END")
 
-Actions:
+#{cl.header('Actions:')}
 #{actions_str.chomp()}
 END
       return sb.join()
@@ -237,17 +242,17 @@ END
       options_str = option_help_message(action.option_schema, width: width, indent: indent)
       optstr = options_str.empty? ? "" : " [<options>]"
       argstr = Util.argstr_of_proc(action.block)
-      c = @config
+      c = @config; cl = Util::Color
       sb = []
       sb << <<"END"
-#{c.command} #{action.name} --- #{action.desc}
+#{cl.strong(c.command + ' ' + action.name)} --- #{action.desc}
 
-Usage:
+#{cl.header('Usage:')}
 #{c.help_indent}$ #{c.command} #{action.name}#{optstr}#{argstr}
 END
       sb << (options_str.empty? ? "" : <<"END")
 
-Options:
+#{cl.header('Options:')}
 #{options_str.chomp()}
 END
       return sb.join()
@@ -316,9 +321,15 @@ END
 
     def do_when_action_not_specified(global_opts)
       #; [!w5lq9] prints application help message.
-      print application_help_message()
+      #; [!audam] decolorizes help message when stdout is not a tty.
+      print decolorize(application_help_message())
       #; [!txqnr] returns true which means 'done'.
       return true
+    end
+
+    def decolorize(s)
+      #; [!es6ay] decolorizes str if stdout is not a tty.
+      return $stdout.tty? ? s : Util::Color.decolorize(s)
     end
 
   end
@@ -377,6 +388,19 @@ END
       name = name.gsub('_', '-')     # ex: 'src_dir' -> 'src-dir'
       return name
     end
+
+
+    module Color
+      module_function
+      def strong(s) ; return "\e[1m#{s}\e[0m"  ; end
+      def weak(s)   ; return "\e[2m#{s}\e[0m"  ; end
+      def header(s) ; return "\e[36m#{s}\e[0m" ; end
+      def error(s)  ; return "\e[31m#{s}\e[0m" ; end
+      def decolorize(s)
+        return s.gsub(/\e\[.*?m/, '')
+      end
+    end
+
 
   end
 

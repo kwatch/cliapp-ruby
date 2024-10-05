@@ -48,20 +48,21 @@ Oktest.scope do
       app
     end
 
-    APP_HELP = <<'END'
-Sample (0.1.2) --- Sample Application
+    APP_HELP_COLOR = <<"END"
+\e[1mSample\e[0m \e[2m(0.1.2)\e[0m --- Sample Application
 
-Usage:
-  $ sample [<options>] <action> [<arguments>...]
+\e[36mUsage:\e[0m
+  $ \e[1msample\e[0m [<options>] <action> [<arguments>...]
 
-Options:
+\e[36mOptions:\e[0m
   -h, --help             print help message
   -V, --version          print version number
 
-Actions:
+\e[36mActions:\e[0m
   clean                  delete garbage files (& product files too if '-a')
   hello                  greeting message
 END
+    APP_HELP_MONO = APP_HELP_COLOR.gsub(/\e\[.*?m/, '')
 
 
     topic '#global_options()' do
@@ -210,7 +211,7 @@ END
 
       spec "[!j029i] prints help message if no action name specified." do
         |app|
-        sout = capture_stdout { app.run() }
+        sout = capture_stdout(tty: false) { app.run() }
         ok {sout} =~ /^Sample \(0\.1\.2\) --- Sample Application$/
       end
 
@@ -231,7 +232,15 @@ END
 
       spec "[!ehshp] prints action help if action option contains help option." do
         |app|
-        sout = capture_stdout do
+        sout = capture_stdout(tty: true) do
+          app.run("hello", "Alice", "--help")
+        end
+        ok {sout} =~ /^\e\[1msample hello\e\[0m --- greeting message$/
+      end
+
+      spec "[!6vet4] decolorizes action help message when stdout is not a tty." do
+        |app|
+        sout = capture_stdout(tty: false) do
           app.run("hello", "Alice", "--help")
         end
         ok {sout} =~ /^sample hello --- greeting message$/
@@ -253,10 +262,20 @@ END
       spec "[!6n0w0] when '-h' or '--help' specified, prints help message and returns true." do
         |app|
         ret = nil
-        sout = capture_stdout do
+        sout = capture_stdout(tty: true) do
           ret = app.handle_global_options({help: true})
         end
-        ok {sout} =~ /^Sample \(0\.1\.2\) --- Sample Application$/
+        ok {sout} == APP_HELP_COLOR
+        ok {ret} == true
+      end
+
+      spec "[!fadq1] decolorizes app help message when stdout is not a tty." do
+        |app|
+        ret = nil
+        sout = capture_stdout(tty: false) do
+          ret = app.handle_global_options({help: true})
+        end
+        ok {sout} == APP_HELP_MONO
         ok {ret} == true
       end
 
@@ -315,35 +334,37 @@ END
 
       spec "[!p02s2] builds application help message." do
         |app|
-        ok {app.application_help_message()} == APP_HELP
+        ok {app.application_help_message()} == APP_HELP_COLOR
       end
 
       spec "[!41l2g] includes version number if it is specified." do
         |app|
         ok {app.config.version} == "0.1.2"
-        ok {app.application_help_message()} =~ /^Sample \(0\.1\.2\) ---/
+        ok {app.application_help_message()} =~ /^\e\[1mSample\e\[0m \e\[2m\(0\.1\.2\)\e\[0m ---/
         app2 = CLIApp.new("Sample", "Sample App", command: "sample", version: nil)
-        ok {app2.application_help_message()} =~ /^Sample ---/
+        ok {app2.application_help_message()} =~ /^\e\[1mSample\e\[0m ---/
       end
 
       spec "[!2eycw] includes 'Options:' section if any global options exist." do
         |app|
-        ok {app.application_help_message()} =~ /^Options:$/
-        ok {app.application_help_message()} =~ /^  \$ sample \[<options>\] <action> \[<arguments>\.\.\.\]$/
+        header_rexp = /^\e\[36mOptions:\e\[0m$/
+        ok {app.application_help_message()} =~ header_rexp
+        ok {app.application_help_message()} =~ /^  \$ \e\[1msample\e\[0m \[<options>\] <action> \[<arguments>\.\.\.\]$/
         app2 = CLIApp.new("Sample", "Sample App", command: "sample", version: nil)
         app2.action("hello", "Hello") do end
-        ok {app2.application_help_message()} !~ /^Options:$/
-        ok {app2.application_help_message()} =~ /^  \$ sample <action> \[<arguments>\.\.\.\]$/
+        ok {app2.application_help_message()} !~ header_rexp
+        ok {app2.application_help_message()} =~ /^  \$ \e\[1msample\e\[0m <action> \[<arguments>\.\.\.\]$/
       end
 
       spec "[!x3dim] includes 'Actions:' section if any actions defined." do
         |app|
-        ok {app.application_help_message()} =~ /^Actions:$/
-        ok {app.application_help_message()} =~ /^  \$ sample \[<options>\] <action> \[<arguments>\.\.\.\]$/
+        header_rexp = /^\e\[36mActions:\e\[0m$/
+        ok {app.application_help_message()} =~ header_rexp
+        ok {app.application_help_message()} =~ /^  \$ \e\[1msample\e\[0m \[<options>\] <action> \[<arguments>\.\.\.\]$/
         app2 = CLIApp.new("Sample", "Sample App", command: "sample", version: nil)
         app2.global_options({:version=>["-V", "version"]})
-        ok {app2.application_help_message()} !~ /^Actions:$/
-        ok {app2.application_help_message()} =~ /^  \$ sample \[<options>\]$/
+        ok {app2.application_help_message()} !~ header_rexp
+        ok {app2.application_help_message()} =~ /^  \$ \e\[1msample\e\[0m \[<options>\]$/
       end
 
       spec "[!vxcin] help message will be affcted by config." do
@@ -351,17 +372,17 @@ END
         app.config.help_indent = "  | "
         app.config.help_option_width = 14
         app.config.help_action_width = 6
-        ok {app.application_help_message()} == <<'END'
-Sample (0.1.2) --- Sample Application
+        ok {app.application_help_message()} == <<"END"
+\e[1mSample\e[0m \e[2m(0.1.2)\e[0m --- Sample Application
 
-Usage:
-  | $ sample [<options>] <action> [<arguments>...]
+\e[36mUsage:\e[0m
+  | $ \e[1msample\e[0m [<options>] <action> [<arguments>...]
 
-Options:
+\e[36mOptions:\e[0m
   | -h, --help     print help message
   | -V, --version  print version number
 
-Actions:
+\e[36mActions:\e[0m
   | clean  delete garbage files (& product files too if '-a')
   | hello  greeting message
 END
@@ -372,26 +393,27 @@ END
 
     topic '#action_help_message()' do
 
-      ACTION_HELP = <<'END'
-sample hello --- greeting message
+      ACTION_HELP_COLOR = <<"END"
+\e[1msample hello\e[0m --- greeting message
 
-Usage:
+\e[36mUsage:\e[0m
   $ sample hello [<options>] [<name>]
 
-Options:
+\e[36mOptions:\e[0m
   -l, --lang=<en|fr|it>  language
 END
+      ACTION_HELP_MONO = ACTION_HELP_COLOR.gsub(/\e\[.*?m/, '')
 
       spec "[!ny72g] build action help message." do
         |app|
         action = app.get_action(:hello)
-        ok {app.action_help_message(action)} == ACTION_HELP
+        ok {app.action_help_message(action)} == ACTION_HELP_COLOR
       end
 
       spec "[!pr2vy] includes 'Options:' section if any options exist." do
         |app|
         hello = app.get_action(:hello)
-        ok {app.action_help_message(hello)} =~ /^Options:$/
+        ok {app.action_help_message(hello)} =~ /^\e\[36mOptions:\e\[0m$/
         ok {app.action_help_message(hello)} =~ /^  \$ sample hello \[<options>\] \[<name>\]$/
         clean = app.get_action(:clean)
         ok {app.action_help_message(clean)} !~ /^Options:$/
@@ -403,13 +425,13 @@ END
         app.config.help_indent = " | "
         app.config.help_option_width = 25
         hello = app.get_action(:hello)
-        ok {app.action_help_message(hello)} == <<'END'
-sample hello --- greeting message
+        ok {app.action_help_message(hello)} == <<"END"
+\e[1msample hello\e[0m --- greeting message
 
-Usage:
+\e[36mUsage:\e[0m
  | $ sample hello [<options>] [<name>]
 
-Options:
+\e[36mOptions:\e[0m
  | -l, --lang=<en|fr|it>     language
 END
       end
@@ -563,12 +585,22 @@ END
 
       spec "[!w5lq9] prints application help message." do
         |app|
-        sout = capture_stdout() do
+        sout = capture_stdout(tty: true) do
           app.instance_eval do
             do_when_action_not_specified({})
           end
         end
-        ok {sout} == APP_HELP
+        ok {sout} == APP_HELP_COLOR
+      end
+
+      spec "[!audam] decolorizes help message when stdout is not a tty." do
+        |app|
+        sout = capture_stdout(tty: false) do
+          app.instance_eval do
+            do_when_action_not_specified({})
+          end
+        end
+        ok {sout} == APP_HELP_MONO
       end
 
       spec "[!txqnr] returns true which means 'done'." do
@@ -580,6 +612,24 @@ END
           end
         end
         ok {ret} == true
+      end
+
+    end
+
+
+    topic '#decolorize()' do
+
+      spec "[!es6ay] decolorizes str if stdout is not a tty." do
+        |app|
+        str = "\e[36mABC\e[0mDEF\e[1mGHI\e[0m"
+        capture_stdout(tty: false)  do
+          s = app.instance_eval { decolorize(str) }
+          ok {s} == "ABCDEFGHI"
+        end
+        capture_stdout(tty: true)  do
+          s = app.instance_eval { decolorize(str) }
+          ok {s} == str
+        end
       end
 
     end
