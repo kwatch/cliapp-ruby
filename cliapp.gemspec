@@ -13,13 +13,13 @@ A small framework for CLI Applications such as Git, Docker, NPM, etc.
 END
   spec.license         = 'MIT'
   spec.files           = Dir[
-                           "README.md", "MIT-LICENSE", "CHANGES.md",
+                           'README.md', 'MIT-LICENSE', 'CHANGES.md',
                            "#{spec.name}.gemspec",
-                           #"Rakefile.rb",
-                           #"bin/*",
-                           "lib/**/*.rb",
-                           "test/**/*.rb",
-                           #"task/**/*.rb",
+                           #'Rakefile.rb',
+                           #'bin/*',
+                           'lib/**/*.rb',
+                           'test/**/*.rb',
+                           #'task/**/*.rb',
                          ]
   spec.executables     = []
   spec.bindir          = 'bin'
@@ -27,6 +27,6 @@ END
   spec.test_files      = ['test/all.rb']   # or: Dir['test/**/*_test.rb']
   #spec.extra_rdoc_files = ['README.md', 'CHANGES.md']
 
-  spec.required_ruby_version = ">= 2.4"
+  spec.required_ruby_version = '>= 2.4'
   spec.add_development_dependency 'oktest', '~> 1.4'
 end
