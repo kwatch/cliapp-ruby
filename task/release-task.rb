@@ -49,10 +49,14 @@ end
 desc "update version number"
 task :prepare, [:version] do |t, args|
   version = version_number_required(args, :prepare)
+  copyright = COPYRIGHT
   spec = load_gemspec_file("#{PROJECT}.gemspec")
   edit(spec.files) {|s|
-    s.gsub(/\$Version\:.*?\$/,   "$Version\: #{version} $") \
-     .gsub(/\$Version\$/,        version)
+    s = s.gsub(/\$Version\:.*?\$/,   "$Version\: #{version} $")
+    s = s.gsub(/\$Version\$/,        version)
+    s = s.gsub(/\$Copyright:.*?\$/,  "$Copyright\: #{copyright} $")
+    s = s.gsub(/\$Copyright\$/,      copyright)
+    s
   }
 end
 
