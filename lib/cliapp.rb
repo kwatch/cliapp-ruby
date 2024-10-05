@@ -209,22 +209,23 @@ module CLIApp
       }.join()
       optstr = options_str.empty? ? "" : " [<options>]"
       actstr = actions_str.empty? ? "" : " <action> [<arguments>...]"
-      ver = c.version ? " (#{c.version})" : nil
+      cl = Util::Color
+      ver = c.version ? " " + cl.weak("(#{c.version})") : nil
       sb = []
       sb << <<"END"
-#{c.name}#{ver} --- #{c.desc}
+#{cl.strong(c.name)}#{ver} --- #{c.desc}
 
-Usage:
-#{indent}$ #{c.command}#{optstr}#{actstr}
+#{cl.header('Usage:')}
+#{indent}$ #{cl.strong(c.command)}#{optstr}#{actstr}
 END
       sb << (options_str.empty? ? "" : <<"END")
 
-Options:
+#{cl.header('Options:')}
 #{options_str.chomp()}
 END
       sb << (actions_str.empty? ? "" : <<"END")
 
-Actions:
+#{cl.header('Actions:')}
 #{actions_str.chomp()}
 END
       return sb.join()
@@ -237,17 +238,17 @@ END
       options_str = option_help_message(action.option_schema, width: width, indent: indent)
       optstr = options_str.empty? ? "" : " [<options>]"
       argstr = Util.argstr_of_proc(action.block)
-      c = @config
+      c = @config; cl = Util::Color
       sb = []
       sb << <<"END"
-#{c.command} #{action.name} --- #{action.desc}
+#{cl.strong(c.command + ' ' + action.name)} --- #{action.desc}
 
-Usage:
+#{cl.header('Usage:')}
 #{c.help_indent}$ #{c.command} #{action.name}#{optstr}#{argstr}
 END
       sb << (options_str.empty? ? "" : <<"END")
 
-Options:
+#{cl.header('Options:')}
 #{options_str.chomp()}
 END
       return sb.join()
