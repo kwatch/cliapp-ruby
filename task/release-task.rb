@@ -49,7 +49,7 @@ end
 desc "update version number"
 task :prepare, [:version] do |t, args|
   version = version_number_required(args, :prepare)
-  spec = load_gemspec_file(SPECFILE)
+  spec = load_gemspec_file("#{PROJECT}.gemspec")
   edit(spec.files) {|s|
     s.gsub(/\$Version\:.*?\$/,   "$Version\: #{version} $") \
      .gsub(/\$Version\$/,        version)
@@ -59,13 +59,13 @@ end
 
 desc "create gem package"
 task "gem:build" do
-  sh "gem build #{SPECFILE}"
+  sh "gem build #{PROJECT}.gemspec"
 end
 
 
 desc "upload gem to rubygems.org"
 task "gem:publish" do
-  spec = load_gemspec_file(SPECFILE)
+  spec = load_gemspec_file("#{PROJECT}.gemspec")
   version = spec.version.to_s
   gemfile = "#{PROJECT}-#{version}.gem"
   File.exist?(gemfile)  or
