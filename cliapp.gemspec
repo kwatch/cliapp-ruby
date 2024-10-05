@@ -13,7 +13,8 @@ A small framework for CLI Applications such as Git, Docker, NPM, etc.
 END
   spec.license         = 'MIT'
   spec.files           = Dir[
-                           "README.md", "MIT-LICENSE", "#{spec.name}.gemspec",
+                           "README.md", "MIT-LICENSE", "CHANGES.md",
+                           "#{spec.name}.gemspec",
                            #"Rakefile.rb",
                            #"bin/*",
                            "lib/**/*.rb",
