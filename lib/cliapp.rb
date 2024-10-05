@@ -4,7 +4,7 @@
 ##
 ## Command-Line Application Framework
 ##
-## $Version: 0.1.0 $
+## $Version: 0.1.1 $
 ## $Copyright: copyright (c)2014 kwatch@gmail.com $
 ## $License: MIT License $
 ##
