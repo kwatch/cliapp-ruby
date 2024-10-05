@@ -617,6 +617,24 @@ END
     end
 
 
+    topic '#decolorize()' do
+
+      spec "[!es6ay] decolorizes str if stdout is not a tty." do
+        |app|
+        str = "\e[36mABC\e[0mDEF\e[1mGHI\e[0m"
+        capture_stdout(tty: false)  do
+          s = app.instance_eval { decolorize(str) }
+          ok {s} == "ABCDEFGHI"
+        end
+        capture_stdout(tty: true)  do
+          s = app.instance_eval { decolorize(str) }
+          ok {s} == str
+        end
+      end
+
+    end
+
+
   end
 
 

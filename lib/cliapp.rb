@@ -166,8 +166,7 @@ module CLIApp
       #; [!ehshp] prints action help if action option contains help option.
       if action_opts[:help]
         #; [!6vet4] decolorizes action help message when stdout is not a tty.
-        s = action_help_message(action)
-        print($stdout.tty? ? s : Util::Color.decolorize(s))
+        print decolorize(action_help_message(action))
         return
       end
       #; [!0nwwe] invokes an action with action args and options.
@@ -178,8 +177,7 @@ module CLIApp
       #; [!6n0w0] when '-h' or '--help' specified, prints help message and returns true.
       if global_opts[:help]
         #; [!fadq1] decolorizes app help message when stdout is not a tty.
-        s = application_help_message()
-        print($stdout.tty? ? s : Util::Color.decolorize(s))
+        print decolorize(application_help_message())
         return true
       end
       #; [!zii8c] when '-V' or '--version' specified, prints version number and returns true.
@@ -324,10 +322,14 @@ END
     def do_when_action_not_specified(global_opts)
       #; [!w5lq9] prints application help message.
       #; [!audam] decolorizes help message when stdout is not a tty.
-      s = application_help_message()
-      print($stdout.tty? ? s : Util::Color.decolorize(s))
+      print decolorize(application_help_message())
       #; [!txqnr] returns true which means 'done'.
       return true
+    end
+
+    def decolorize(s)
+      #; [!es6ay] decolorizes str if stdout is not a tty.
+      return $stdout.tty? ? s : Util::Color.decolorize(s)
     end
 
   end
