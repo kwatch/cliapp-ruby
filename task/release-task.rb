@@ -2,7 +2,7 @@
 
 
 desc "show how to release"
-task :howto, [:version] do |t, args|
+task "howto-release", [:version] do |t, args|
   project = PROJECT
   version = args[:version] || ENV['version'] || "0.0.0"
   version =~ /\A(\d+\.\d+)/  or
