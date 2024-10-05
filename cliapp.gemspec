@@ -12,12 +12,14 @@ Gem::Specification.new do |spec|
 A small framework for CLI Applications such as Git, Docker, NPM, etc.
 END
   spec.license         = 'MIT'
-  spec.files           = Dir[*%w[
-                           README.md MIT-LICENSE Rakefile.rb cliapp.gemspec
-                           lib/**/*.rb
-                           test/**/*.rb
-                           task/**/*.rb
-                         ]]
+  spec.files           = Dir[
+                           "README.md", "MIT-LICENSE", "#{spec.name}.gemspec",
+                           #"Rakefile.rb",
+                           #"bin/*",
+                           "lib/**/*.rb",
+                           "test/**/*.rb",
+                           #"task/**/*.rb",
+                         ]
   spec.executables     = []
   spec.bindir          = 'bin'
   spec.require_path    = 'lib'
