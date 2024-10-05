@@ -390,7 +390,6 @@ app.global_options({
   :version => [      "--version"   , "print version number"],
   :list    => ["-l", "--list"      , "list action names"],
 })
-APP = app
 
 ## 'hello' action
 app.action("hello", "greeting message", {
@@ -416,15 +415,10 @@ GARBAGE_FILES = []
 PRODUCT_FILES = []
 
 ## main
-def main(argv=ARGV)
-  APP.run(*argv)
-  return 0
+begin
+  app.run(*ARGV)
+  exit 0
 rescue OptionParser::ParseError, CLIApp::ActionError => exc
   $stderr.puts "[ERROR] #{exc.message}"
-  return 1
-end
-
-if __FILE__ == $0
-  status_code = main(ARGV)
-  exit status_code
+  exit 1
 end
