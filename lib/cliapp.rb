@@ -163,7 +163,8 @@ module CLIApp
       action_opts = parse_action_options(action, args)
       #; [!ehshp] prints action help if action option contains help option.
       if action_opts[:help]
-        print action_help_message(action)
+        s = action_help_message(action)
+        print($stdout.tty? ? s : Util::Color.decolorize(s))
         return
       end
       #; [!0nwwe] invokes an action with action args and options.
@@ -173,7 +174,8 @@ module CLIApp
     def handle_global_options(global_opts)
       #; [!6n0w0] when '-h' or '--help' specified, prints help message and returns true.
       if global_opts[:help]
-        print application_help_message()
+        s = application_help_message()
+        print($stdout.tty? ? s : Util::Color.decolorize(s))
         return true
       end
       #; [!zii8c] when '-V' or '--version' specified, prints version number and returns true.
@@ -317,7 +319,8 @@ END
 
     def do_when_action_not_specified(global_opts)
       #; [!w5lq9] prints application help message.
-      print application_help_message()
+      s = application_help_message()
+      print($stdout.tty? ? s : Util::Color.decolorize(s))
       #; [!txqnr] returns true which means 'done'.
       return true
     end
