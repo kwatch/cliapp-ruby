@@ -232,7 +232,15 @@ END
 
       spec "[!ehshp] prints action help if action option contains help option." do
         |app|
-        sout = capture_stdout do
+        sout = capture_stdout(tty: true) do
+          app.run("hello", "Alice", "--help")
+        end
+        ok {sout} =~ /^\e\[1msample hello\e\[0m --- greeting message$/
+      end
+
+      spec "[!6vet4] decolorizes action help message when stdout is not a tty." do
+        |app|
+        sout = capture_stdout(tty: false) do
           app.run("hello", "Alice", "--help")
         end
         ok {sout} =~ /^sample hello --- greeting message$/
@@ -254,10 +262,20 @@ END
       spec "[!6n0w0] when '-h' or '--help' specified, prints help message and returns true." do
         |app|
         ret = nil
-        sout = capture_stdout do
+        sout = capture_stdout(tty: true) do
           ret = app.handle_global_options({help: true})
         end
-        ok {sout} =~ /^Sample \(0\.1\.2\) --- Sample Application$/
+        ok {sout} == APP_HELP_COLOR
+        ok {ret} == true
+      end
+
+      spec "[!fadq1] decolorizes app help message when stdout is not a tty." do
+        |app|
+        ret = nil
+        sout = capture_stdout(tty: false) do
+          ret = app.handle_global_options({help: true})
+        end
+        ok {sout} == APP_HELP_MONO
         ok {ret} == true
       end
 
@@ -573,6 +591,16 @@ END
           end
         end
         ok {sout} == APP_HELP_COLOR
+      end
+
+      spec "[!audam] decolorizes help message when stdout is not a tty." do
+        |app|
+        sout = capture_stdout(tty: false) do
+          app.instance_eval do
+            do_when_action_not_specified({})
+          end
+        end
+        ok {sout} == APP_HELP_MONO
       end
 
       spec "[!txqnr] returns true which means 'done'." do
