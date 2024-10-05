@@ -5,7 +5,7 @@
 ## Command-Line Application Framework
 ##
 ## $Version: 0.0.0 $
-## $Copyright: copyright (c)2024 kwatch@gmail.com $
+## $Copyright: copyright(c) 2024 kwatch@gmail.com $
 ## $License: MIT License $
 ##
 
