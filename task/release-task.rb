@@ -19,12 +19,14 @@ end
 
 
 desc "upload gem to rubygems.org"
-task :release, [:version] => :package do |t, args|
-  version = version_number_required(args, :release)
+task :release do
   spec = load_gemspec_file(SPECFILE)
-  version == spec.version.to_s  or
-    raise "Version in gemspec file (#{spec.version}) is different from #{version}"
+  version = spec.version.to_s
   gemfile = "#{PROJECT}-#{version}.gem"
+  unless File.exist?(gemfile)
+    $stderr.puts "[ERROR] Gem file (#{gemfile}) not found. Run 'rake package' beforehand."
+    exit 1
+  end
   print "*** Are you sure to upload #{gemfile}? [y/N]: "
   answer = $stdin.gets().strip()
   if answer =~ /\A[yY]/
