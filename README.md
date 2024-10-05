@@ -70,13 +70,16 @@ GARBAGE_FILES = []
 PRODUCT_FILES = []
 
 ## main
-begin
-  app.run(*ARGV)
-  exit 0
-rescue OptionParser::ParseError, CLIApp::ActionError => exc
-  $stderr.puts "[ERROR] #{exc.message}"
-  exit 0
-end
+status_code = app.main(ARGV)
+exit status_code
+## or
+#begin
+#  app.run(*ARGV)
+#  exit 0
+#rescue OptionParser::ParseError, CLIApp::ActionError => exc
+#  $stderr.puts "[ERROR] #{exc.message}"
+#  exit 1
+#end
 ```
 
 Output example:
