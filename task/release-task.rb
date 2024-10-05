@@ -57,13 +57,13 @@ end
 
 
 desc "create gem package"
-task :package do
+task "gem:build" do
   sh "gem build #{SPECFILE}"
 end
 
 
 desc "upload gem to rubygems.org"
-task :release do
+task "gem:publish" do
   spec = load_gemspec_file(SPECFILE)
   version = spec.version.to_s
   gemfile = "#{PROJECT}-#{version}.gem"
