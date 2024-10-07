@@ -3,15 +3,18 @@
 
 desc "show how to release"
 task "release:howto", [:version] do |t, args|
-  project = PROJECT
-  version = args[:version] || ENV['version'] || "0.0.0"
+  puts _release_howto(PROJECT, args[:version])
+end
+
+def _release_howto(project, version)
+  version ||= (ENV['version'] || "0.0.0")
   version =~ /\A(\d+\.\d+)/  or
     abort "#{version}: Invalid version number."
   ver = $1
   zero_p = ver.end_with?('.0')
   opt_b = zero_p ? " -b" : ""
   comm  = zero_p ? "create a new" : "switch to existing"
-  puts <<"END"
+  return <<"END"
 ## How to release #{version}
 
 git diff                	# confirm that there is no changes
