@@ -29,7 +29,7 @@ cid=$(git log -1 | awk 'NR==1{print $2}')  # in order to cherry-pick later
 rake prepare[#{version}]        	# update release number in files
 git add -u .            	# add changes into staging area
 git status -sb .        	# list files in staging area
-git diff --cache        	# confirm changes in staging area
+git diff --cached       	# confirm changes in staging area
 git commit -m "Preparation for release #{version}"
 proj=#{project}
 gem build $proj.gemspec 	# build gem package
