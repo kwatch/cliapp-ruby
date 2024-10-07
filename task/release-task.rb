@@ -20,30 +20,29 @@ def _release_howto(project, version)
 git diff                	# confirm that there is no changes
 rake test
 rake test:all           	# test on Ruby 2.x ~ 3.x
-git checkout#{opt_b} rel-#{ver}         	# #{comm} release branch
+git checkout#{opt_b} rel-#{ver}    	# #{comm} release branch
 vi CHANGES.md
 git add CHANGES.md
 git commit -m "Update 'CHANGES.md'"
 git log -1              	# confirm the commit
-cid=$(git log -1 | awk 'NR==1{print $2}')  # in order to cherry-pick later
+cid=$(git log -1 | awk 'NR==1{print $2}')  	# in order to cherry-pick later
 rake prepare[#{version}]        	# update release number in files
 git add -u .            	# add changes into staging area
 git status -sb .        	# list files in staging area
 git diff --cached       	# confirm changes in staging area
 git commit -m "Preparation for release #{version}"
-proj=#{project}
-gem build $proj.gemspec 	# build gem package
-gem unpack $proj-#{version}.gem	# extract gem package
-find $proj-#{version}           	# confirm file list in gem package
-rm -rf $proj-#{version}         	# delete extracted files
-gem push $proj-#{version}.gem	# release gem package
+gem build #{project}.gemspec  	# build gem package
+gem unpack #{project}-#{version}.gem 	# extract gem package
+find #{project}-#{version}         	# confirm file list in gem package
+rm -rf #{project}-#{version}       	# delete extracted files
+gem push #{project}-#{version}.gem 	# release gem package
 git push -u origin rel-#{ver}
 git tag v#{version}             	# add version tag
 git push --tags
 git checkout -          	# back to main branch
 git log -1 $cid
 git cherry-pick $cid    	# apply the commit to update CHANGES.md
-git rm $proj-#{version}.gem     	# if necessary
+git rm #{project}-#{version}.gem   	# if necessary
 
 END
 end
