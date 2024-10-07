@@ -48,6 +48,79 @@ END
 end
 
 
+desc "run release task interactively"
+task "release:wizard", [:version] do |t, args|
+  version = args[:version]
+  _release_wizard(PROJECT, version)
+  ## or, if you prefer shell script...
+  #shell_script = File.dirname(__FILE__) + "/release-wizard.sh"
+  #system "sh #{shell_script} 'rake release:howto[#{version}]'"
+end
+
+def _release_wizard(project, version)
+  howto = _release_howto(project, version)
+  vars = {}
+  howto.each_line do |line|
+    next if line =~ /^#/ || line =~ /^$/
+    #
+    if line =~ /(.*)\t(#.*)/
+      command = $1.strip
+      comment = $1
+    else
+      command = line.strip
+      comment = nil
+    end
+    #
+    puts "** Next: #{line.strip}"
+    print "** Run? [Y/n/q]: "
+    answer = $stdin.readline().strip()
+    if answer =~ /^n/i
+      puts ""
+      next
+    end
+    if answer =~ /^q/i
+      puts "** Quit."
+      break
+    end
+    #
+    puts "$ #{command}"
+    case command
+    when /^(\w+)=\$\((.*)\)$/      # ex: 'cid="$(git log -1 | awk 'NR==1{print}')"'
+      var = $1
+      output = `#{$2}`
+      vars[var] = output.chomp
+      ok = ($?.exitstatus == 0)
+    when /\$(\w+)$/                # ex: 'git cherry-pick $cid'
+      var = $1
+      if vars.key?(var)
+        command = command.sub(/\$\w+$/, vars[var])
+      end
+      ok = system command
+    else
+      ok = system command
+    end
+    #
+    if ! ok
+      print "# Command failed: Continue? [y/n]: "
+      cont_p = nil
+      while true
+        answer = $stdin.readline().strip()
+        case answer
+        when /y/i ; cont_p = true  ; break
+        when /n/i ; cont_p = false ; break
+        else      ; print "** Please answer 'y' or 'n'. Continue? [y/n]: "
+        end
+      end
+      if cont_p == false
+        puts "** Quit."
+        break
+      end
+    end
+    puts ""
+  end
+end
+
+
 desc "update version number"
 task :prepare, [:version] do |t, args|
   version = version_number_required(args, :prepare)
