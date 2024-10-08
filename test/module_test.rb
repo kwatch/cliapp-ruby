@@ -67,19 +67,20 @@ END
         ok {str}.is_a?(String)
         filename = "tmp.sample"
         dummy_file(filename, str)
+        ruby = "#{RbConfig.ruby} -Ilib"
         #
-        sout, serr = capture_command "ruby #{filename} --help"
+        sout, serr = capture_command "#{ruby} #{filename} --help"
         ok {serr} == ""
         ok {sout} == GLOBAL_HELP
         #
-        sout, serr = capture_command "ruby #{filename} hello --help"
+        sout, serr = capture_command "#{ruby} #{filename} hello --help"
         ok {serr} == ""
         ok {sout} == HELLO_HELP
         #
-        sout, serr = capture_command "ruby #{filename} hello"
+        sout, serr = capture_command "#{ruby} #{filename} hello"
         ok {serr} == ""
         ok {sout} == "Hello, world!\n"
-        sout, serr = capture_command "ruby #{filename} hello Alice --lang=fr"
+        sout, serr = capture_command "#{ruby} #{filename} hello Alice --lang=fr"
         ok {serr} == ""
         ok {sout} == "Bonjour, Alice!\n"
       end
