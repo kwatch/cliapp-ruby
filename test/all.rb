@@ -3,9 +3,9 @@
 
 require_relative './init'
 
-path = File.dirname(__FILE__)
-Dir.glob(path + '/**/*_test.rb').sort.each do |file|
-  require_relative file.sub(path, '.')
+testdir = File.dirname(__FILE__)
+Dir.glob(testdir + '/**/*_test.rb').sort.each do |fpath|
+  require_relative fpath.sub(testdir, '.')
 end
 
 
