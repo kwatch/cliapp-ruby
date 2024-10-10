@@ -155,15 +155,15 @@ task :prepare, [:version] do |t, args|
   }
 end
 
-def edit_files(*filepaths)
+def edit_files(*filepaths, &b)
   filepaths.flatten.each do |fpath|
     next unless File.file?(fpath)
-    changed = edit_file(fpath)
+    changed = edit_file(fpath, &b)
     puts "[Change] #{fpath}" if changed
   end
 end
 
-def edit_file(fpath)
+def edit_file(fpath, &b)
   changed = false
   File.open(fpath, 'r+b:utf-8') do |f|
     s = f.read()
