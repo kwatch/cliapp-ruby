@@ -2,21 +2,26 @@
 # frozen_string_literal: true
 
 
+##
+## release:howto
+##
 desc "show how to release"
 task "release:howto", [:version] do |t, args|
-  puts _release_howto(PROJECT, args[:version])
+  version = args[:version] || ENV['version']  or
+    fail "[ERROR] Version number required (such as 'version=1.0.0')."
+  puts howto_release(PROJECT, version)
 end
 
-def _release_howto(project, version)
-  version ||= (ENV['version'] || "0.0.0")
+def howto_release(project, version)
   version =~ /\A(\d+\.\d+)/  or
     abort "#{version}: Invalid version number."
   ver = $1
-  zero_p = ver.end_with?('.0')
+  zero_p = (version =~ /\A\d+\.\d+\.0\b/)
+  release_type = zero_p ? "new" : "bugfix"
   opt_b = zero_p ? " -b" : ""
   comm  = zero_p ? "create a new" : "switch to existing"
   return <<"END"
-## How to release #{version}
+## Procedure for #{release_type} release (#{version})
 
 git diff                	# confirm that there is no changes
 rake test
@@ -49,17 +54,21 @@ END
 end
 
 
+##
+## release:wizard
+##
 desc "run release task interactively"
 task "release:wizard", [:version] do |t, args|
-  version = args[:version]
-  _release_wizard(PROJECT, version)
+  version = args[:version] || ENV['version']  or
+    fail "[ERROR] Version number required (such as 'version=1.0.0')."
+  start_release_wizard(PROJECT, version)
   ## or, if you prefer shell script...
   #shell_script = File.dirname(__FILE__) + "/release-wizard.sh"
   #system "sh #{shell_script} 'rake release:howto[#{version}]'"
 end
 
-def _release_wizard(project, version)
-  howto = _release_howto(project, version)
+def start_release_wizard(project, version)
+  howto = howto_release(project, version)
   vars = {}
   howto.each_line do |line|
     next if line =~ /^#/ || line =~ /^$/
@@ -122,12 +131,16 @@ def _release_wizard(project, version)
 end
 
 
+##
+## prepare
+##
 desc "update version number"
 task :prepare, [:version] do |t, args|
-  version = version_number_required(args, :prepare)
+  version = args[:version] || ENV['version']  or
+    fail "[ERROR] Version number required (such as 'version=1.0.0')."
   copyright = COPYRIGHT
   spec = load_gemspec_file("#{PROJECT}.gemspec")
-  edit(spec.files) {|s, fpath|
+  edit_files(spec.files) {|s, fpath|
     s = s.gsub(/\$Version\:.*?\$/,   "$Version\: #{version} $")
     s = s.gsub(/\$Version\$/,        version)
     s = s.gsub(/\$Copyright:.*?\$/,  "$Copyright\: #{copyright} $")
@@ -142,47 +155,27 @@ task :prepare, [:version] do |t, args|
   }
 end
 
-
-desc "create gem package"
-task "gem:build" do
-  sh "gem build #{PROJECT}.gemspec"
-end
-
-
-desc "upload gem to rubygems.org"
-task "gem:publish" do
-  spec = load_gemspec_file("#{PROJECT}.gemspec")
-  version = spec.version.to_s
-  gemfile = "#{PROJECT}-#{version}.gem"
-  File.exist?(gemfile)  or
-    abort "[ERROR] Gem file (#{gemfile}) not found. Run 'rake package' beforehand."
-  print "*** Are you sure to upload #{gemfile}? [y/N]: "
-  answer = $stdin.gets().strip()
-  if answer =~ /\A[yY]/
-    #sh "git tag v#{version}"
-    sh "gem push #{gemfile}"
+def edit_files(*filepaths)
+  filepaths.flatten.each do |fpath|
+    next unless File.file?(fpath)
+    changed = edit_file(fpath)
+    puts "[Change] #{fpath}" if changed
   end
 end
 
-
-##
-## helpers
-##
-
-def edit(*filepaths)
-  filepaths.flatten.each do |fpath|
-    next if ! File.file?(fpath)
-    File.open(fpath, 'r+b:utf-8') do |f|
-      s = f.read()
-      new_s = yield s, fpath
-      if new_s != s
-        f.rewind()
-        f.truncate(0)
-        f.write(new_s)
-        puts "[Change] #{fpath}"
-      end
+def edit_file(fpath)
+  changed = false
+  File.open(fpath, 'r+b:utf-8') do |f|
+    s = f.read()
+    new_s = yield s, fpath
+    if new_s != s
+      f.rewind()
+      f.truncate(0)
+      f.write(new_s)
+      changed = true
     end
   end
+  return changed
 end
 
 def load_gemspec_file(gemspec_file)
@@ -190,18 +183,30 @@ def load_gemspec_file(gemspec_file)
   return Gem::Specification::load(gemspec_file)
 end
 
-def version_number_required(args, task_name)
-  version = args[:version] || ENV['version']
-  unless version
-    $stderr.puts <<"END"
+
 ##
-## ERROR: rake #{task_name}: requires 'version=X.X.X' option.
-##        For example:
-##           $ rake #{task_name} version=1.0.0
+## gem:build
 ##
-END
-    errmsg = "rake #{task_name}: requires 'version=X.X.X' option."
-    raise ArgumentError.new(errmsg)
+desc "create gem package"
+task "gem:build" do
+  sh "gem build #{PROJECT}.gemspec"
+end
+
+
+##
+## gem:upload
+##
+desc "upload gem to rubygems.org"
+task "gem:publish" do
+  spec = load_gemspec_file("#{PROJECT}.gemspec")
+  version = spec.version.to_s
+  gemfile = "#{PROJECT}-#{version}.gem"
+  File.exist?(gemfile)  or
+    abort "[ERROR] Gem file (#{gemfile}) not found. Run 'rake gem:build' beforehand."
+  print "*** Are you sure to upload #{gemfile}? [y/N]: "
+  answer = $stdin.gets().strip()
+  if answer =~ /\A[yY]/
+    sh "gem push #{gemfile}"
+    sh "git tag v#{version}"
   end
-  return version
 end
