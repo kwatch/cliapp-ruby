@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
 # frozen_string_literal: true
 
 ##
@@ -416,7 +416,7 @@ end
 
 __END__
 #!/usr/bin/env ruby
-# coding: utf-8
+# encoding: utf-8
 # frozen_string_literal: true
 
 require 'cliapp'
