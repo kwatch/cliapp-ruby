@@ -2,7 +2,7 @@ CHANGES
 =======
 
 
-Release 0.2.0 (20XX-XX-XX)
+Release 0.2.0 (2024-10-11)
 --------------------------
 
 * [change] Help message colorized.
