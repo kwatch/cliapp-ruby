@@ -3,7 +3,7 @@
 
 Gem::Specification.new do |spec|
   spec.name            = 'cliapp'
-  spec.version         = '$Version: 0.0.0 $'.split()[1]
+  spec.version         = '$Version: 0.2.0 $'.split()[1]
   spec.author          = 'kwatch'
   spec.email           = 'kwatch@gmail.com'
   spec.platform        = Gem::Platform::RUBY

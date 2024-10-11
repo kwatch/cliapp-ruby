@@ -1,7 +1,7 @@
 CLIApp
 ======
 
-($Version: 0.0.0 $)
+($Version: 0.2.0 $)
 
 CLIApp is a small framework for command-line application.
 If you need to create a CLI app such as Git or Docker, CLIApp is one of the solutions.
